@@ -166,10 +166,11 @@ static const struct WindowTemplate sMainMenuWindowTemplates[] =
         .tilemapLeft = 8,          // position from left (per 8 pixels)
         .tilemapTop = 4,           // position from top (per 8 pixels)
         .width = 18,               // width (per 8 pixels)
-        .height = 6,               // height (per 8 pixels)
+        .height = 7,               // height (per 8 pixels)
         .paletteNum = 0,           // palette index to use for text
         .baseBlock = 1 + (18 * 2), // tile start in VRAM
     },
+    DUMMY_WIN_TEMPLATE
 };
 
 //  Positions of Hardware/GPU Windows
@@ -202,12 +203,19 @@ static const u32 sMainBgTiles[] = INCBIN_U32("graphics/ui_main_menu/main_tiles.4
 static const u32 sMainBgTilemap[] = INCBIN_U32("graphics/ui_main_menu/main_tiles.bin.lz");
 static const u16 sMainBgPalette[] = INCBIN_U16("graphics/ui_main_menu/main_tiles.gbapal");
 
+static const u32 sMainBgTilesFem[] = INCBIN_U32("graphics/ui_main_menu/main_tiles_fem.4bpp.lz");
+static const u32 sMainBgTilemapFem[] = INCBIN_U32("graphics/ui_main_menu/main_tiles_fem.bin.lz");
+static const u16 sMainBgPaletteFem[] = INCBIN_U16("graphics/ui_main_menu/main_tiles_fem.gbapal");
+
 static const u32 sScrollBgTiles[] = INCBIN_U32("graphics/ui_main_menu/scroll_tiles.4bpp.lz");
 static const u32 sScrollBgTilemap[] = INCBIN_U32("graphics/ui_main_menu/scroll_tiles.bin.lz");
 static const u16 sScrollBgPalette[] = INCBIN_U16("graphics/ui_main_menu/scroll_tiles.gbapal");
 
 static const u16 sIconBox_Pal[] = INCBIN_U16("graphics/ui_main_menu/icon_shadow.gbapal");
 static const u32 sIconBox_Gfx[] = INCBIN_U32("graphics/ui_main_menu/icon_shadow.4bpp.lz");
+
+static const u16 sIconBox_PalFem[] = INCBIN_U16("graphics/ui_main_menu/icon_shadow_fem.gbapal");
+static const u32 sIconBox_GfxFem[] = INCBIN_U32("graphics/ui_main_menu/icon_shadow_fem.4bpp.lz");
 
 static const u16 sBrendanMugshot_Pal[] = INCBIN_U16("graphics/ui_main_menu/brendan_mugshot.gbapal");
 static const u32 sBrendanMugshot_Gfx[] = INCBIN_U32("graphics/ui_main_menu/brendan_mugshot.4bpp.lz");
@@ -289,9 +297,22 @@ static const struct CompressedSpriteSheet sSpriteSheet_IconBox =
     .tag = TAG_ICON_BOX,
 };
 
+static const struct CompressedSpriteSheet sSpriteSheet_IconBoxFem =
+{
+    .data = sIconBox_GfxFem,
+    .size = 32*32*1/2,
+    .tag = TAG_ICON_BOX,
+};
+
 static const struct SpritePalette sSpritePal_IconBox =
 {
     .data = sIconBox_Pal,
+    .tag = TAG_ICON_BOX
+};
+
+static const struct SpritePalette sSpritePal_IconBoxFem =
+{
+    .data = sIconBox_PalFem,
     .tag = TAG_ICON_BOX
 };
 
@@ -359,8 +380,8 @@ void MainMenu_Init(MainCallback callback)
     sMainMenuDataPtr->savedCallback = callback;
     for(i = 0; i < 6; i++)
     {
-        sMainMenuDataPtr->iconBoxSpriteIds[6] = SPRITE_NONE;
-        sMainMenuDataPtr->iconMonSpriteIds[6] = SPRITE_NONE;
+        sMainMenuDataPtr->iconBoxSpriteIds[i] = SPRITE_NONE;
+        sMainMenuDataPtr->iconMonSpriteIds[i] = SPRITE_NONE;
     }
     
     SetMainCallback2(MainMenu_RunSetup);
@@ -433,10 +454,18 @@ static void Task_MainMenuWaitFadeIn(u8 taskId)
 
 static void Task_MainMenuTurnOff(u8 taskId)
 {
-    s16 *data = gTasks[taskId].data;
-
     if (!gPaletteFade.active)
     {
+        SetGpuReg(REG_OFFSET_DISPCNT, 0);
+        SetGpuReg(REG_OFFSET_WIN0H, 0);
+        SetGpuReg(REG_OFFSET_WIN0V, 0);
+        SetGpuReg(REG_OFFSET_WIN1H, 0);
+        SetGpuReg(REG_OFFSET_WIN1V, 0);
+        SetGpuReg(REG_OFFSET_WININ, 0);
+        SetGpuReg(REG_OFFSET_WINOUT, 0);
+        SetGpuReg(REG_OFFSET_BLDCNT, 0);
+        SetGpuReg(REG_OFFSET_BLDALPHA, 0);
+        SetGpuReg(REG_OFFSET_BLDY, 0);
         SetMainCallback2(sMainMenuDataPtr->savedCallback);
         MainMenu_FreeResources();
         DestroyTask(taskId);
@@ -449,7 +478,6 @@ static void Task_MainMenuTurnOff(u8 taskId)
 //
 static bool8 MainMenu_DoGfxSetup(void)
 {
-    u8 taskId;
     switch (gMain.state)
     {
     case 0:
@@ -502,7 +530,7 @@ static bool8 MainMenu_DoGfxSetup(void)
         CreateIconShadow();
         CreatePartyMonIcons();
         CreateMugshot();
-        taskId = CreateTask(Task_MainMenuWaitFadeIn, 0);
+        CreateTask(Task_MainMenuWaitFadeIn, 0);
         BlendPalettes(0xFFFFFFFF, 16, RGB_BLACK);
         gMain.state++;
         break;
@@ -579,13 +607,27 @@ static bool8 MainMenu_LoadGraphics(void) // Load all the tilesets, tilemaps, spr
     {
     case 0:
         ResetTempTileDataBuffers();
-        DecompressAndCopyTileDataToVram(1, sMainBgTiles, 0, 0, 0);
+        if (gSaveBlock2Ptr->playerGender == MALE)
+        {
+            DecompressAndCopyTileDataToVram(1, sMainBgTiles, 0, 0, 0);
+        }
+        else
+        {
+            DecompressAndCopyTileDataToVram(1, sMainBgTilesFem, 0, 0, 0);
+        }
         sMainMenuDataPtr->gfxLoadState++;
         break;
     case 1:
         if (FreeTempTileDataBuffersIfPossible() != TRUE)
         {
-            LZDecompressWram(sMainBgTilemap, sBg1TilemapBuffer);
+            if (gSaveBlock2Ptr->playerGender == MALE)
+            {
+                LZDecompressWram(sMainBgTilemap, sBg1TilemapBuffer);
+            }
+            else
+            {
+                LZDecompressWram(sMainBgTilemapFem, sBg1TilemapBuffer);
+            }
             sMainMenuDataPtr->gfxLoadState++;
         }
         break;
@@ -602,20 +644,25 @@ static bool8 MainMenu_LoadGraphics(void) // Load all the tilesets, tilemaps, spr
         }
         break;
     case 4:
-        LoadCompressedSpriteSheet(&sSpriteSheet_IconBox);
-        LoadSpritePalette(&sSpritePal_IconBox);
+    {
         if(gSaveBlock2Ptr->playerGender == MALE)
         {
+            LoadCompressedSpriteSheet(&sSpriteSheet_IconBox);
+            LoadSpritePalette(&sSpritePal_IconBox);
             LoadCompressedSpriteSheet(&sSpriteSheet_BrendanMugshot);
             LoadSpritePalette(&sSpritePal_BrendanMugshot);
+            LoadPalette(sMainBgPalette, 0, 32);
         }
         else
         {
+            LoadCompressedSpriteSheet(&sSpriteSheet_IconBoxFem);
+            LoadSpritePalette(&sSpritePal_IconBoxFem);
             LoadCompressedSpriteSheet(&sSpriteSheet_MayMugshot);
             LoadSpritePalette(&sSpritePal_MayMugshot);
+            LoadPalette(sMainBgPaletteFem, 0, 32);
         }
-        LoadPalette(sMainBgPalette, 0, 32);
         LoadPalette(sScrollBgPalette, 16, 32);
+    }
         sMainMenuDataPtr->gfxLoadState++;
         break;
     default:
@@ -687,6 +734,11 @@ static void CreateIconShadow()
         gSprites[sMainMenuDataPtr->iconBoxSpriteIds[i]].oam.priority = 1;
     }
 
+    for(i = gPlayerPartyCount; i < 6; i++) // Hide Shadows For Mons that don't exist
+    {
+        gSprites[sMainMenuDataPtr->iconBoxSpriteIds[i]].invisible = TRUE;
+    }
+
     return;
 }
 
@@ -702,6 +754,7 @@ static void DestroyIconShadow()
 
 static u32 GetHPEggCyclePercent(u32 partyIndex) // Random HP function from psf's hack written by Rioluwott
 {
+    struct Pokemon *mon = &gPlayerParty[partyIndex];
     if (!GetMonData(mon, MON_DATA_IS_EGG))
         return ((GetMonData(mon, MON_DATA_HP)) * 100 / (GetMonData(mon,MON_DATA_MAX_HP)));
     else
@@ -748,7 +801,7 @@ static void CreatePartyMonIcons()
 #ifdef RHH_EXPANSION
             sMainMenuDataPtr->iconMonSpriteIds[i] = CreateMonIcon(GetMonData(&gPlayerParty[i], MON_DATA_SPECIES_OR_EGG), SpriteCB_MonIcon, x, y - 2, 0, GetMonData(&gPlayerParty[i], MON_DATA_PERSONALITY));
 #else
-            sMainMenuDataPtr->iconMonSpriteIds[i] = CreateMonIcon(GetMonData(&gPlayerParty[i], MON_DATA_SPECIES_OR_EGG), SpriteCB_MonIcon, x, y - 2, 0, GetMonData(&gPlayerParty[i], MON_DATA_PERSONALITY), FALSE);
+            sMainMenuDataPtr->iconMonSpriteIds[i] = CreateMonIcon(GetMonData(&gPlayerParty[i], MON_DATA_SPECIES_OR_EGG), SpriteCB_MonIcon, x, y - 2, 0, GetMonData(&gPlayerParty[i], MON_DATA_PERSONALITY), TRUE);
 #endif
 
         gSprites[sMainMenuDataPtr->iconMonSpriteIds[i]].oam.priority = 0;
