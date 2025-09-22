@@ -106,6 +106,9 @@ bool32 FieldStatusChecker(u32 battler, u32 fieldStatus, enum FieldEffectOutcome 
             result = BenefitsFromMistyTerrain(battler);
         if (fieldStatus & STATUS_FIELD_PSYCHIC_TERRAIN)
             result = BenefitsFromPsychicTerrain(battler);
+        if (fieldStatus & STATUS_FIELD_TRICK_ROOM)
+            result = BenefitsFromTrickRoom(battler);
+
 
         // other field statuses
         if (fieldStatus & STATUS_FIELD_TRICK_ROOM)
@@ -151,6 +154,8 @@ static bool32 DoesAbilityBenefitFromWeather(u32 ability, u32 weather)
         return (weather & B_WEATHER_RAIN);
     case ABILITY_CHLOROPHYLL:
     case ABILITY_FLOWER_GIFT:
+    case ABILITY_SUNBATHE:
+        return (weather & B_WEATHER_SUN);
     case ABILITY_HARVEST:
     case ABILITY_LEAF_GUARD:
     case ABILITY_ORICHALCUM_PULSE:

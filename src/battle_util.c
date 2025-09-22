@@ -3309,6 +3309,8 @@ u32 AbilityBattleEffects(u32 caseID, u32 battler, u32 ability, u32 special, u32 
     u32 i = 0, j = 0;
     u32 partner = 0;
 
+    
+
     if (gBattleTypeFlags & BATTLE_TYPE_SAFARI)
         return 0;
 
@@ -3920,6 +3922,13 @@ u32 AbilityBattleEffects(u32 caseID, u32 battler, u32 ability, u32 special, u32 
                 effect++;
             }
             break;
+        case ABILITY_TRICK_REALM:
+            if (TryChangeBattleTerrain(battler, STATUS_FIELD_TRICK_ROOM, &gFieldTimers.trickRoomTimer))
+            {
+                BattleScriptPushCursorAndCallback(BattleScript_TrickRealmActivates);
+                effect++;
+            }
+            break;
         case ABILITY_INTIMIDATE:
             if (!gSpecialStatuses[battler].switchInAbilityDone)
             {
@@ -4258,6 +4267,19 @@ u32 AbilityBattleEffects(u32 caseID, u32 battler, u32 ability, u32 special, u32 
                 {
                     BattleScriptPushCursorAndCallback(BattleScript_RainDishActivates);
                     gBattleStruct->moveDamage[battler] = GetNonDynamaxMaxHP(battler) / (gLastUsedAbility == ABILITY_RAIN_DISH ? 16 : 8);
+                    if (gBattleStruct->moveDamage[battler] == 0)
+                        gBattleStruct->moveDamage[battler] = 1;
+                    gBattleStruct->moveDamage[battler] *= -1;
+                    effect++;
+                }
+                break;
+                case ABILITY_SUNBATHE:
+                if (IsBattlerWeatherAffected(battler, B_WEATHER_SUN)
+                 && !IsBattlerAtMaxHp(battler)
+                 && !gBattleMons[battler].volatiles.healBlock)
+                {
+                    BattleScriptPushCursorAndCallback(BattleScript_SunbatheActivates);
+                    gBattleStruct->moveDamage[battler] = GetNonDynamaxMaxHP(battler) / (gLastUsedAbility == ABILITY_SUNBATHE ? 16 : 8);
                     if (gBattleStruct->moveDamage[battler] == 0)
                         gBattleStruct->moveDamage[battler] = 1;
                     gBattleStruct->moveDamage[battler] *= -1;
@@ -8447,6 +8469,18 @@ static inline u32 CalcMoveBasePowerAfterModifiers(struct DamageContext *ctx)
     case ABILITY_SUPREME_OVERLORD:
         modifier = uq4_12_multiply(modifier, GetSupremeOverlordModifier(battlerAtk));
         break;
+    case ABILITY_IMMOLATE:
+        if (moveType == TYPE_FIRE && gBattleStruct->battlerState[battlerAtk].ateBoost)
+            modifier = uq4_12_multiply(modifier, UQ_4_12(GetGenConfig(GEN_CONFIG_ATE_MULTIPLIER) >= GEN_7 ? 1.2 : 1.3));
+        break;
+    case ABILITY_IRRIGATE:
+        if (moveType == TYPE_WATER && gBattleStruct->battlerState[battlerAtk].ateBoost)
+            modifier = uq4_12_multiply(modifier, UQ_4_12(GetGenConfig(GEN_CONFIG_ATE_MULTIPLIER) >= GEN_7 ? 1.2 : 1.3));
+        break;
+    case ABILITY_CULTIVATE:
+        if (moveType == TYPE_GRASS && gBattleStruct->battlerState[battlerAtk].ateBoost)
+            modifier = uq4_12_multiply(modifier, UQ_4_12(GetGenConfig(GEN_CONFIG_ATE_MULTIPLIER) >= GEN_7 ? 1.2 : 1.3));
+        break;
     }
 
     // field abilities
@@ -10654,7 +10688,7 @@ bool32 CanStealItem(u32 battlerStealing, u32 battlerItem, u16 item)
               | BATTLE_TYPE_LINK
               | BATTLE_TYPE_RECORDED_LINK
               | BATTLE_TYPE_SECRET_BASE
-              | (B_TRAINERS_KNOCK_OFF_ITEMS == TRUE ? BATTLE_TYPE_TRAINER : 0)
+              | (B_TRAINERS_KNOCK_OFF_ITEMS == FALSE ? BATTLE_TYPE_TRAINER : 0)
               )))
     {
         return FALSE;

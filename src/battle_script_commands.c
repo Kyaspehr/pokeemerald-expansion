@@ -12785,7 +12785,7 @@ static void Cmd_tryswapitems(void)
                                   | BATTLE_TYPE_FRONTIER
                                   | BATTLE_TYPE_SECRET_BASE
                                   | BATTLE_TYPE_RECORDED_LINK
-                                  | (B_TRAINERS_KNOCK_OFF_ITEMS == TRUE ? BATTLE_TYPE_TRAINER : 0)
+                                  | (B_TRAINERS_KNOCK_OFF_ITEMS == FALSE ? BATTLE_TYPE_TRAINER : 0)
                                   ))))
     {
         gBattlescriptCurrInstr = cmd->failInstr;

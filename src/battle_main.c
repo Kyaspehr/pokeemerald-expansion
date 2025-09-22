@@ -5588,7 +5588,7 @@ static void HandleEndTurn_FinishBattle(void)
             TestRunner_Battle_AfterLastTurn();
         BeginFastPaletteFade(3);
         FadeOutMapMusic(5);
-        if (B_TRAINERS_KNOCK_OFF_ITEMS == TRUE || B_RESTORE_HELD_BATTLE_ITEMS >= GEN_9)
+        if (B_TRAINERS_KNOCK_OFF_ITEMS == FALSE || B_RESTORE_HELD_BATTLE_ITEMS >= GEN_9)
             TryRestoreHeldItems();
 
         // Undo Dynamax HP multiplier before recalculating stats.
@@ -5820,7 +5820,20 @@ u32 TrySetAteType(u32 move, u32 battlerAtk, u32 attackerAbility)
     default:
         ateType = TYPE_NONE;
         break;
+    case ABILITY_IMMOLATE:
+        ateType = TYPE_FIRE;
+        break;
+    case ABILITY_IRRIGATE:
+        ateType = TYPE_WATER;
+        break;
+    case ABILITY_CULTIVATE:
+        ateType = TYPE_GRASS;
+        break;
+    case ABILITY_POLLINATE:
+        ateType = TYPE_BUG;
+        break;
     }
+
 
     return ateType;
 }

@@ -12,6 +12,8 @@ SINGLE_BATTLE_TEST("B_VAR_STARTING_STATUS starts a chosen terrain at the beginni
     PARAMETRIZE { terrain = STARTING_STATUS_PSYCHIC_TERRAIN; }
     PARAMETRIZE { terrain = STARTING_STATUS_MISTY_TERRAIN; }
     PARAMETRIZE { terrain = STARTING_STATUS_ELECTRIC_TERRAIN; }
+    PARAMETRIZE { terrain = STARTING_STATUS_TRICK_ROOM; }
+
 
     VarSet(B_VAR_STARTING_STATUS, terrain);
     VarSet(B_VAR_STARTING_STATUS_TIMER, 0);
@@ -43,6 +45,10 @@ SINGLE_BATTLE_TEST("B_VAR_STARTING_STATUS starts a chosen terrain at the beginni
         case STARTING_STATUS_ELECTRIC_TERRAIN:
             MESSAGE("An electric current is running across the battlefield!");
             break;
+        case STARTING_STATUS_TRICK_ROOM:
+            MESSAGE("The battelfield is being distorted!")
+            break;
+
         }
         ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_RESTORE_BG);
         NONE_OF {
@@ -51,6 +57,7 @@ SINGLE_BATTLE_TEST("B_VAR_STARTING_STATUS starts a chosen terrain at the beginni
             MESSAGE("The electricity disappeared from the battlefield.");
             MESSAGE("The mist disappeared from the battlefield.");
             MESSAGE("The grass disappeared from the battlefield.");
+            MESSAGE("The battlefield returns to normal!")
         }
     } THEN {
         VarSet(B_VAR_STARTING_STATUS, 0);

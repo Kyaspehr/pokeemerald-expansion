@@ -1674,6 +1674,15 @@ static s32 GetSwitchinWeatherImpact(void)
             if (weatherImpact == 0)
                 weatherImpact = -1;
         }
+        if (gBattleWeather & B_WEATHER_SUN && holdEffect != HOLD_EFFECT_UTILITY_UMBRELLA)
+        {
+            if (ability == ABILITY_SUNBATHE)
+            {
+                weatherImpact = -(maxHP / 16);
+                if (weatherImpact == 0)
+                    weatherImpact = -1;
+            }
+        }
     }
     return weatherImpact;
 }

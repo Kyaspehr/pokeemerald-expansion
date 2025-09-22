@@ -5444,8 +5444,8 @@ case EFFECT_GUARD_SPLIT:
         {
             bool32 canSteal = FALSE;
 
-            if (B_TRAINERS_KNOCK_OFF_ITEMS == TRUE)
-                canSteal = TRUE;
+            if (B_TRAINERS_KNOCK_OFF_ITEMS == FALSE)
+                canSteal = FALSE;
 
             if (gBattleTypeFlags & BATTLE_TYPE_FRONTIER || IsOnPlayerSide(battlerAtk))
                 canSteal = TRUE;

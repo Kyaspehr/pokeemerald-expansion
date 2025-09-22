@@ -2408,4 +2408,47 @@ const struct Ability gAbilitiesInfo[ABILITIES_COUNT] =
         .cantBeSwapped = TRUE,
         .cantBeTraced = TRUE,
     },
+
+    [ABILITY_IMMOLATE] =
+    {
+        .name = _("Immolate"),
+        .description = COMPOUND_STRING("Normal moves become Fire."),
+        .aiRating = 8,
+    },
+
+    [ABILITY_IRRIGATE] =
+    {
+        .name = _("Irrigate"),
+        .description = COMPOUND_STRING("Normal moves become Water."),
+        .aiRating = 8,
+    },
+
+    [ABILITY_CULTIVATE] =
+    {
+        .name = _("Cultivate"),
+        .description = COMPOUND_STRING("Normal moves become Grass."),
+        .aiRating = 8,
+    },
+
+    [ABILITY_POLLINATE] =
+    {
+        .name = _("Pollinate"),
+        .description = COMPOUND_STRING("Normal moves become Bug."),
+        .aiRating = 8,
+    },
+
+    [ABILITY_SUNBATHE] =
+    {
+        .name = _("Sunbathe"),
+        .description = COMPOUND_STRING("Slight HP recovery in sun."),
+        .aiRating = 3,
+    },
+
+    [ABILITY_TRICK_REALM] =
+    {
+    .name = _("Trick Realm"),
+    .description = COMPOUND_STRING("Sets Trick Room upon entry."),
+    .aiRating = 8,
+    },
+
 };

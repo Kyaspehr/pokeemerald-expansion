@@ -7294,6 +7294,10 @@ BattleScript_RainDishActivates::
 	call BattleScript_AbilityHpHeal
 	end3
 
+BattleScript_SunbatheActivates::
+	call BattleScript_AbilityHpHeal
+	end3
+
 BattleScript_CheekPouchActivates::
 	copybyte sSAVED_BATTLER, gBattlerAttacker
 	copybyte gBattlerAttacker, gBattlerAbility
@@ -7712,6 +7716,16 @@ BattleScript_PsychicSurgeActivates::
 	printstring STRINGID_TERRAINBECOMESPSYCHIC
 	waitmessage B_WAIT_TIME_LONG
 	playanimation BS_SCRIPTING, B_ANIM_RESTORE_BG
+	call BattleScript_ActivateTerrainEffects
+	end3
+
+BattleScript_TimeDistortActivates::
+	pause B_WAIT_TIME_SHORT
+	call BattleScript_AbilityPopUp
+	setroom
+	call B_MSG_SET_TRICK_ROOM
+	waitmessage B_WAIT_TIME_LONG
+	goto BattleScript_MoveEnd
 	call BattleScript_ActivateTerrainEffects
 	end3
 
@@ -9677,6 +9691,12 @@ BattleScript_EffectSnow::
 	call BattleScript_CheckPrimalWeather
 	setfieldweather BATTLE_WEATHER_SNOW
 	goto BattleScript_MoveWeatherChange
+	
+BattleScript_TrickRealmActivates::
+    printstring STRINGID_PKMNTWISTEDDIMENSIONS
+	call BattleScript_AbilityPopUp
+    waitmessage B_WAIT_TIME_LONG
+	end3
 
 BattleScript_SleepClauseBlocked::
 	pause B_WAIT_TIME_SHORT
