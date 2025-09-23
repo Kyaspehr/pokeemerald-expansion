@@ -3927,6 +3927,13 @@ u32 AbilityBattleEffects(u32 caseID, u32 battler, u32 ability, u32 special, u32 
             {
                 BattleScriptPushCursorAndCallback(BattleScript_TrickRealmActivates);
                 effect++;
+               
+            }
+            if (gFieldStatuses & STATUS_FIELD_TRICK_ROOM && gFieldTimers.trickRoomTimer == gBattleTurnCounter)
+            {
+                gFieldStatuses &= ~STATUS_FIELD_TRICK_ROOM;
+                BattleScriptExecute(BattleScript_TrickRoomEnds);
+                effect = TRUE;
             }
             break;
         case ABILITY_INTIMIDATE:
