@@ -7719,14 +7719,14 @@ BattleScript_PsychicSurgeActivates::
 	call BattleScript_ActivateTerrainEffects
 	end3
 
-BattleScript_TimeDistortActivates::
+BattleScript_TrickRealmActivates::
 	pause B_WAIT_TIME_SHORT
 	call BattleScript_AbilityPopUp
 	setroom
 	call B_MSG_SET_TRICK_ROOM
 	waitmessage B_WAIT_TIME_LONG
+	call BattleScript_EffectTrickRoom
 	goto BattleScript_MoveEnd
-	call BattleScript_ActivateTerrainEffects
 	end3
 
 BattleScript_BadDreamsActivates::
@@ -9691,12 +9691,6 @@ BattleScript_EffectSnow::
 	call BattleScript_CheckPrimalWeather
 	setfieldweather BATTLE_WEATHER_SNOW
 	goto BattleScript_MoveWeatherChange
-	
-BattleScript_TrickRealmActivates::
-    printstring STRINGID_PKMNTWISTEDDIMENSIONS
-	call BattleScript_AbilityPopUp
-    waitmessage B_WAIT_TIME_LONG
-	end3
 
 BattleScript_SleepClauseBlocked::
 	pause B_WAIT_TIME_SHORT
